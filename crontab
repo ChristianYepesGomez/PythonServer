@@ -1,0 +1,2 @@
+#run python script every minutes
+@daily python /app/app.py

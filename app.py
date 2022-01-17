@@ -1,10 +1,7 @@
 from flask import Flask
 
+print("a")
 app = Flask(__name__)
-import os
-
-os.system('cmd /c "scrapy crawl AERProblems"')
-
 
 @app.route('/')
 def hello_world():
