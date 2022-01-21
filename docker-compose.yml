@@ -4,6 +4,23 @@ services:
     build:
       context: .
     ports:
-      - "5000:5000"
+      - "5000:8000"
     volumes:
       - ./:/app
+    command: python manage.py runserver 0.0.0.0:8000
+    links:
+      - db:postgresql
+    depends_on:
+      - db
+  db:
+    build: ./db
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: API_AER
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+    container_name: postgres
