@@ -6,6 +6,7 @@
 import scrapy
 
 
+# Class Problem to scrap data from webpage and save it
 class Problem(scrapy.Item):
     price = scrapy.Field()
     # General data from the problem
@@ -29,6 +30,7 @@ class Problem(scrapy.Item):
     category = scrapy.Field()
 
 
+# Class User to scrap data from webpage and save it
 class User(scrapy.Item):
     nick = scrapy.Field()
     name = scrapy.Field()
@@ -41,6 +43,7 @@ class User(scrapy.Item):
     accepteds = scrapy.Field()
 
 
+# Class Category to scrap data from webpage and save it
 class Category(scrapy.Item):
     id = scrapy.Field()
     name = scrapy.Field()

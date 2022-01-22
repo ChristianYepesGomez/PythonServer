@@ -115,64 +115,68 @@ class Users(scrapy.Spider):
         Users.id += 1
 
 
+# Get Categories
 class Categories(scrapy.Spider):
     name = 'AERCategories'
     start_urls = ['https://www.aceptaelreto.com']
 
     def parse(self, response):
-        # yield scrapy.Request(url='https://www.aceptaelreto.com/problems/categories.php/?cat=3',
-        #                      callback=self.parse_category)
+        # Scrap categories from 1 to 75
         for i in range(1, 75):
             yield scrapy.Request(url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(i),
                                  callback=self.parse_category)
 
     def parse_category(self, response):
         try:
+            # Select the text inside <script> from JS file of the webpage
+            # and parse it to json with the library chompjs
+
             import chompjs
             javascript = response.css('script::text').get()
             data = chompjs.parse_js_object(javascript)
-            # num_of_problems = javascript.split(";")[1].split(" ")[3]
-            # if int(num_of_problems) > 0:
 
+            # Create a Category object to save the data
             category_object = Category()
+
+            # Need the index to the relation between categories
             index = len(data['path'])
-            print(index)
+
+            # If have some path, have a relation
             if (index == 0):
                 category_object['related_category'] = None
             else:
+                # The relation its calculated with the last item in the 'path' and his ID
                 category_object['related_category'] = data['path'][int(index) - 1]['id']
+
+            # Relation between the Category object and the scrapped data
             category_object['id'] = data['id']
-            print(data['id'])
             category_object['name'] = data['name']
-            print(data['name'])
 
+            # Call pipelines to manage the object
             yield category_object
-
-            # else:
-            # category_object = Category()
-            # index = len(data['path'])
-            # category_object['id'] = data['id']
-            # category_object['name'] = data['name']
-            # category_object['related_category'] = data['path'][int(index) - 1]['id']
-            # yield category_object
 
         except Exception as e:
             print("La categoria no existe")
             print(e)
 
-    class ProblemsByCategory(scrapy.Spider):
+# Secondary method to get problems on the database, this one can relate the problems with a category
+class ProblemsByCategory(scrapy.Spider):
         name = 'AERProblemsByCategory'
         start_urls = ['https://www.aceptaelreto.com']
         id_actual = 0
 
         def parse(self, response):
+            # Scrap every problem by category
             for i in range(2, 75):
                 yield scrapy.Request(url='https://www.aceptaelreto.com/ws/cat/{}/problems?_=16428085447'.format(i),
                                      callback=self.parse_problem_category)
 
         def parse_problem_category(self, response):
-            # Get ids from volumes
+            # Get problems list
             problems_list = response.xpath('//problem')
+
+            # With this list we have the ID of the category on de url so we can relate Problems and Category
+                # --> Can't use only the scrap of the problems because not all problems have a category <--
 
             for problem in problems_list:
                 # Create item for every problem
