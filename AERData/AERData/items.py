@@ -26,6 +26,7 @@ class Problem(scrapy.Item):
     c_shipments = scrapy.Field()
     cpp_shipments = scrapy.Field()
     java_shipments = scrapy.Field()
+    category = scrapy.Field()
 
 
 class User(scrapy.Item):
@@ -38,3 +39,9 @@ class User(scrapy.Item):
     total_accepteds = scrapy.Field()
     intents = scrapy.Field()
     accepteds = scrapy.Field()
+
+
+class Category(scrapy.Item):
+    id = scrapy.Field()
+    name = scrapy.Field()
+    related_category = scrapy.Field()

@@ -12,15 +12,36 @@ services:
       - db:postgresql
     depends_on:
       - db
+    networks:
+      - AER
   db:
     build: ./db
     restart: always
     environment:
       POSTGRES_USER: root
-      POSTGRES_PASSWORD: example
+      POSTGRES_PASSWORD: root
       POSTGRES_DB: API_AER
     ports:
       - "5432:5432"
     volumes:
       - ./db/data:/var/lib/postgresql/data
-    container_name: postgres
+    container_name: postgres_db
+    networks:
+      - AER
+  pgadmin:
+    build: ./pgadmin
+    container_name: pgadmin4_AER
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: christianyepesgomez@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - "8090:80"
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+    networks:
+      - AER
+networks:
+  AER:
+    driver: bridge
