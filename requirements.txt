@@ -2,3 +2,4 @@ Scrapy==2.5.1
 Django==3.2.11
 djangorestframework==3.13.1
 psycopg2==2.9.3
+chompjs==1.1.6

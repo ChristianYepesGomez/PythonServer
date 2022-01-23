@@ -1,2 +1,2 @@
-#run python script every minutes
-@daily python /app/app.py
+#run bash script every day
+@daily /app/scripts/crawl.sh
