@@ -151,7 +151,6 @@ class Categories(scrapy.Spider):
             # Relation between the Category object and the scrapped data
             category_object['id'] = data['id']
             category_object['name'] = data['name']
-
             # Call pipelines to manage the object
             yield category_object
 

@@ -60,7 +60,6 @@ class AerdataPipeline(object):
                     item['id'], item['name'], item['related_category'],
                     item['id'], item['name'], item['related_category'])
 
-                # Execute and commit
                 self.cur.execute(query, values)
                 self.connection.commit()
                 return item
