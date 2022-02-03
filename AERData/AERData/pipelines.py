@@ -43,7 +43,29 @@ class AerdataPipeline(object):
         # Some if to manage the data according to Object type
         elif isinstance(item, User):
             try:
-                # Todo Gestionar usuarios
+                try:
+                    # Insert problems on database or updated if exist
+                    query = "INSERT INTO users(nick,name,country,institution,logo_src,shipments,total_accepteds,intents,accepteds) " \
+                            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
+                            "ON CONFLICT (id_problem) DO UPDATE SET nick = %s,name = %s,country = %s," \
+                            "institution = %s,logo_src = %s,shipments = %s,total_accepteds = %s,intents = %s," \
+                            "accepteds = %s"
+                    # values for query
+                    values = (
+                        item["nick"], item["name"], item["country"], item["institution"],
+                        item["logo_src"], item["shipments"], item["total_accepteds"], item["memory_limit"],
+                        item["presentation_error"], item["attempts"], item["other"], item["restricted_function"],
+                        item["compilation_error"], item["c_shipments"], item["cpp_shipments"], item["java_shipments"],
+                        item["category"])
+
+                    # execute and commit
+                    self.cur.execute(query, values)
+                    self.connection.commit()
+
+                    return item
+                except Exception as e:
+                    print("Fallo insertando Problemas")
+                    print(e)
                 print("a")
             except Exception as e:
                 print("Fallo insertando usuarios")
@@ -51,6 +73,7 @@ class AerdataPipeline(object):
         # Some if to manage the data according to Object type
         elif isinstance(item, Category):
             try:
+                print(item)
                 # Insert problems on database or updated if exist
                 query = "INSERT INTO categories(id_category,name,related_category) VALUES (%s,%s,%s)" \
                         "ON CONFLICT (id_category) DO UPDATE SET id_category = %s, name = %s, related_category = %s"
@@ -73,7 +96,7 @@ class AerdataPipeline(object):
     def open_spider(self, spider):
         hostname = 'postgresql'
         username = 'root'
-        password = 'example'
+        password = 'root'
         database = 'API_AER'
         self.connection = psycopg2.connect(
             host=hostname, user=username, password=password,

@@ -1,5 +1,14 @@
 CREATE DATABASE API_AER WITH ENCODING 'UTF8'
 CONNECT API_AER
+
+CREATE TABLE IF NOT EXISTS categories
+(
+    id_category      serial PRIMARY KEY,
+    name             VARCHAR(255) NOT NULL,
+    related_category INT,
+    CONSTRAINT fk_category_id FOREIGN KEY (related_category) REFERENCES categories (id_category)
+);
+
 CREATE TABLE IF NOT EXISTS problems
 (
     id_problem            serial PRIMARY KEY,
@@ -42,17 +51,3 @@ CREATE TABLE IF NOT EXISTS blacklist_users
     number_user  INT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS categories
-(
-    id_category      serial PRIMARY KEY,
-    name             VARCHAR(255) UNIQUE NOT NULL,
-    related_category INT,
-    CONSTRAINT fk_category_id FOREIGN KEY (related_category) REFERENCES categories (id_category)
-);
-
-CREATE TABLE IF NOT EXISTS categories
-(
-    id_category      serial PRIMARY KEY,
-    name             VARCHAR(255) NOT NULL,
-    related_category INT
-);

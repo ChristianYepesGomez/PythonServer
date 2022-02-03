@@ -121,10 +121,9 @@ class Categories(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com']
 
     def parse(self, response):
-        # Scrap categories from 1 to 75
-        for i in range(1, 75):
-            yield scrapy.Request(url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(i),
-                                 callback=self.parse_category)
+        # Scrap categories the url with all father categories
+        yield scrapy.Request(url='https://www.aceptaelreto.com/problems/categories.php',
+                             callback=self.parse_category)
 
     def parse_category(self, response):
         try:
@@ -135,22 +134,37 @@ class Categories(scrapy.Spider):
             javascript = response.css('script::text').get()
             data = chompjs.parse_js_object(javascript)
 
+            # for each subcategory on the category look if have any child and repeat recursively
+            # then check if the category have any problem
+            for subcat in data['subcats']:
+                # When looking for categories also we do the relation between category and problems
+                # and modify the database
+                if subcat['numOfProblems'] > 0:
+                    yield scrapy.Request(
+                        url='https://www.aceptaelreto.com/ws/cat/{}/problems?_=16428085447'.format(subcat['id']),
+                        callback=self.parse_problem_category)
+                else:
+                    yield scrapy.Request(
+                        url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(subcat['id']),
+                        callback=self.parse_category)
+
             # Create a Category object to save the data
             category_object = Category()
-
             # Need the index to the relation between categories
             index = len(data['path'])
-
-            # If have some path, have a relation
-            if (index == 0):
-                category_object['related_category'] = None
-            else:
-                # The relation its calculated with the last item in the 'path' and his ID
-                category_object['related_category'] = data['path'][int(index) - 1]['id']
 
             # Relation between the Category object and the scrapped data
             category_object['id'] = data['id']
             category_object['name'] = data['name']
+
+            # If have some path, have a relation
+            if (index == 0):
+                category_object['related_category'] = None
+                yield category_object
+            else:
+                # The relation its calculated with the last item in the 'path' and his ID
+                category_object['related_category'] = data['path'][int(index) - 1]['id']
+
             # Call pipelines to manage the object
             yield category_object
 
@@ -158,46 +172,34 @@ class Categories(scrapy.Spider):
             print("La categoria no existe")
             print(e)
 
-# Secondary method to get problems on the database, this one can relate the problems with a category
-class ProblemsByCategory(scrapy.Spider):
-        name = 'AERProblemsByCategory'
-        start_urls = ['https://www.aceptaelreto.com']
-        id_actual = 0
+    def parse_problem_category(self, response):
+        # Get problems list
+        problems_list = response.xpath('//problem')
 
-        def parse(self, response):
-            # Scrap every problem by category
-            for i in range(2, 75):
-                yield scrapy.Request(url='https://www.aceptaelreto.com/ws/cat/{}/problems?_=16428085447'.format(i),
-                                     callback=self.parse_problem_category)
+        # With this list we have the ID of the category on de url so we can relate Problems and Category
+        # --> Can't use only the scrap of the problems because not all problems have a category <--
 
-        def parse_problem_category(self, response):
-            # Get problems list
-            problems_list = response.xpath('//problem')
-
-            # With this list we have the ID of the category on de url so we can relate Problems and Category
-                # --> Can't use only the scrap of the problems because not all problems have a category <--
-
-            for problem in problems_list:
-                # Create item for every problem
-                problem_item = Problem()
-                # General data from the problem
-                problem_item['number'] = problem.xpath('.//num/text()').get()
-                problem_item['title'] = problem.xpath('.//title/text()').get()
-                # Stadistic data from the problem
-                problem_item['accepteds'] = problem.xpath('.//ac/text()').get()
-                problem_item['no_repeated_accepteds'] = problem.xpath('.//dacu/text()').get()
-                problem_item['wrong_answer'] = problem.xpath('.//wa/text()').get()
-                problem_item['time_limit'] = problem.xpath('.//tl/text()').get()
-                problem_item['memory_limit'] = problem.xpath('.//ml/text()').get()
-                problem_item['presentation_error'] = problem.xpath('.//pe/text()').get()
-                problem_item['shipments'] = problem.xpath('.//totalSubs/text()').get()
-                problem_item['attempts'] = problem.xpath('.//totalUsers/text()').get()
-                problem_item['other'] = problem.xpath('.//ol/text()').get()
-                problem_item['restricted_function'] = problem.xpath('.//rf/text()').get()
-                problem_item['run_time_error'] = problem.xpath('.//rte/text()').get()
-                problem_item['compilation_error'] = problem.xpath('.//ce/text()').get()
-                problem_item['c_shipments'] = problem.xpath('.//c/text()').get()
-                problem_item['cpp_shipments'] = problem.xpath('.//cpp/text()').get()
-                problem_item['java_shipments'] = problem.xpath('.//java/text()').get()
-                problem_item['category'] = response.url.split("/")[5]
-                yield problem_item
+        for problem in problems_list:
+            # Create item for every problem
+            problem_item = Problem()
+            # General data from the problem
+            problem_item['number'] = problem.xpath('.//num/text()').get()
+            problem_item['title'] = problem.xpath('.//title/text()').get()
+            # Stadistic data from the problem
+            problem_item['accepteds'] = problem.xpath('.//ac/text()').get()
+            problem_item['no_repeated_accepteds'] = problem.xpath('.//dacu/text()').get()
+            problem_item['wrong_answer'] = problem.xpath('.//wa/text()').get()
+            problem_item['time_limit'] = problem.xpath('.//tl/text()').get()
+            problem_item['memory_limit'] = problem.xpath('.//ml/text()').get()
+            problem_item['presentation_error'] = problem.xpath('.//pe/text()').get()
+            problem_item['shipments'] = problem.xpath('.//totalSubs/text()').get()
+            problem_item['attempts'] = problem.xpath('.//totalUsers/text()').get()
+            problem_item['other'] = problem.xpath('.//ol/text()').get()
+            problem_item['restricted_function'] = problem.xpath('.//rf/text()').get()
+            problem_item['run_time_error'] = problem.xpath('.//rte/text()').get()
+            problem_item['compilation_error'] = problem.xpath('.//ce/text()').get()
+            problem_item['c_shipments'] = problem.xpath('.//c/text()').get()
+            problem_item['cpp_shipments'] = problem.xpath('.//cpp/text()').get()
+            problem_item['java_shipments'] = problem.xpath('.//java/text()').get()
+            problem_item['category'] = response.url.split("/")[5]
+            yield problem_item
