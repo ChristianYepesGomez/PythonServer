@@ -36,7 +36,7 @@ class AerdataPipeline(object):
                 self.cur.execute(query, values)
                 self.connection.commit()
 
-                return item
+                return f"{item} Inserted"
             except Exception as e:
                 print("Fallo insertando Problemas")
                 print(e)
@@ -62,7 +62,7 @@ class AerdataPipeline(object):
                     self.cur.execute(query, values)
                     self.connection.commit()
 
-                    return item
+                    return f"{item} Inserted"
                 except Exception as e:
                     print("Fallo insertando Problemas")
                     print(e)
@@ -85,12 +85,12 @@ class AerdataPipeline(object):
 
                 self.cur.execute(query, values)
                 self.connection.commit()
-                return item
+                return f"{item} Inserted"
             except Exception as e:
                 print("Fallo insertando categorias")
                 print(e)
         else:
-            return item
+            return f" ------ {item} FAILED -----"
 
     # Define function to connect to database
     def open_spider(self, spider):

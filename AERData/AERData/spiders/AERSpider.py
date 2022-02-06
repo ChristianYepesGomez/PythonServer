@@ -118,12 +118,20 @@ class Users(scrapy.Spider):
 # Get Categories
 class Categories(scrapy.Spider):
     name = 'AERCategories'
-    start_urls = ['https://www.aceptaelreto.com']
+    start_urls = ['https://www.aceptaelreto.com/problems/categories.php']
 
     def parse(self, response):
         # Scrap categories the url with all father categories
-        yield scrapy.Request(url='https://www.aceptaelreto.com/problems/categories.php',
-                             callback=self.parse_category)
+
+        import chompjs
+        javascript = response.css('script::text').get()
+        data = chompjs.parse_js_object(javascript)
+        # Create a Category object to save the data
+
+        for subcat in data['subcats']:
+            yield response.follow(
+                url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(subcat['id']),
+                callback=self.parse_category)
 
     def parse_category(self, response):
         try:
@@ -133,41 +141,33 @@ class Categories(scrapy.Spider):
             import chompjs
             javascript = response.css('script::text').get()
             data = chompjs.parse_js_object(javascript)
-
-            # for each subcategory on the category look if have any child and repeat recursively
-            # then check if the category have any problem
-            for subcat in data['subcats']:
-                # When looking for categories also we do the relation between category and problems
-                # and modify the database
-                if subcat['numOfProblems'] > 0:
-                    yield scrapy.Request(
-                        url='https://www.aceptaelreto.com/ws/cat/{}/problems?_=16428085447'.format(subcat['id']),
-                        callback=self.parse_problem_category)
-                else:
-                    yield scrapy.Request(
-                        url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(subcat['id']),
-                        callback=self.parse_category)
-
             # Create a Category object to save the data
             category_object = Category()
             # Need the index to the relation between categories
-            index = len(data['path'])
-
-            # Relation between the Category object and the scrapped data
+            index = int(len(data['path']))
             category_object['id'] = data['id']
             category_object['name'] = data['name']
 
             # If have some path, have a relation
-            if (index == 0):
-                category_object['related_category'] = None
-                yield category_object
-            else:
-                # The relation its calculated with the last item in the 'path' and his ID
+            # The relation its calculated with the last item in the 'path' and his ID
+            if index != 0:
                 category_object['related_category'] = data['path'][int(index) - 1]['id']
-
+            else:
+                category_object['related_category'] = None
             # Call pipelines to manage the object
             yield category_object
 
+            for subcat in data['subcats']:
+                # When looking for categories also we do the relation between category and problems
+                # and modify the database
+                if int(subcat['numOfProblems']) != 0:
+                    yield response.follow(
+                        url='https://www.aceptaelreto.com/ws/cat/{}/problems?_=16428085447'.format(subcat['id']),
+                        callback=self.parse_problem_category)
+
+                yield response.follow(
+                    url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(subcat['id']),
+                    callback=self.parse_category)
         except Exception as e:
             print("La categoria no existe")
             print(e)
