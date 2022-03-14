@@ -1,8 +1,5 @@
 from ..items import *
 
-# Blacklist with the ID of the users that doesn't exist
-users_blacklist = []
-
 
 # Get Problems class
 class Problems(scrapy.Spider):
@@ -61,11 +58,9 @@ class Users(scrapy.Spider):
     users_failed = 0
 
     def parse(self, response):
-        # when it finds more than 20 users that do not exist stop
-        while Users.users_failed < 20:
-            # Scrap user info webpage
-            yield scrapy.Request(url='https://www.aceptaelreto.com/user/profile.php?id={}'.format(Users.id),
-                                 callback=self.parse_user)
+        # Scrap user info webpage
+        yield scrapy.Request(url='https://www.aceptaelreto.com/user/profile.php?id={}'.format(Users.id),
+                             callback=self.parse_user)
 
     def parse_user(self, response):
         # Generic function to extract data
@@ -75,44 +70,52 @@ class Users(scrapy.Spider):
         try:
             # If the user exists, look the info, else go to next
             if not response.xpath("//div[@class='alert alert-danger']"):
-                # Check blacklist before try to take info
-                if Users.id not in users_blacklist:
-                    user = User()
-                    user['nick'] = extract_xpath("//div[@class='col-sm-8']//p")[0].get()
-                    user['name'] = extract_xpath("//div[@class='col-sm-8']//p")[1].get()
-                    user['country'] = extract_xpath("//div[@class='col-sm-8']//p")[2].get().strip()
-                    # Try to get the institution and logo, if don't have any use the default text
-                    try:
-                        user['institution'] = extract_xpath("//div[@class='col-sm-8']//a")[0].get()
-                        user['logo_src'] = response.xpath("//div[@class='col-sm-8']//a//img/@src")[0].get(),
-                    except:
-                        user['institution'] = extract_xpath("//div[@class='col-sm-8']//p")[3].get().strip()
-                        user['logo_src'] = ""
-                    # If the user have tried to send any solution, look the stats, else set stats to 0
-                    if not response.xpath("//div[@class='alert alert-info']"):
-                        user['shipments'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
-                            0].get().strip()
-                        user['total_accepteds'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
-                            1].get().strip()
-                        user['intents'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
-                            2].get().strip()
-                        user['accepteds'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
-                            3].get().strip()
-                    else:
-                        user['shipments'] = 0
-                        user['total_accepteds'] = 0
-                        user['intents'] = 0
-                        user['accepteds'] = 0
-                    yield user
-                    # Reset the failed users
-                    Users.users_failed = 0
+                user = User()
+                user['id_user'] = Users.id
+                user['nick'] = extract_xpath("//div[@class='col-sm-8']//p")[0].get()
+                user['name'] = extract_xpath("//div[@class='col-sm-8']//p")[1].get()
+                user['country'] = extract_xpath("//div[@class='col-sm-8']//p")[2].get().strip()
+                # Try to get the institution and logo, if don't have any use the default text
+                try:
+                    user['institution'] = extract_xpath("//div[@class='col-sm-8']//a")[0].get()
+                    relative_img_urls = response.xpath("//div[@class='col-sm-8']//a//img/@src")[0].get(),
+                    user['image_urls'] = self.url_join(relative_img_urls, response)
+                except:
+                    user['institution'] = extract_xpath("//div[@class='col-sm-8']//p")[3].get().strip()
+                    user['image_urls'] = ""
+                # If the user have tried to send any solution, look the stats, else set stats to 0
+                if not response.xpath("//div[@class='alert alert-info']"):
+                    user['shipments'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
+                        0].get().strip()
+                    user['total_accepteds'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
+                        1].get().strip()
+                    user['intents'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
+                        2].get().strip()
+                    user['accepteds'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
+                        3].get().strip()
+                else:
+                    user['shipments'] = 0
+                    user['total_accepteds'] = 0
+                    user['intents'] = 0
+                    user['accepteds'] = 0
+                yield user
+                # Reset the failed users
+                Users.users_failed = 0
             else:
-                # TODO añadir a la blacklist
                 Users.users_failed += 1
         except Exception as e:
             print(e)
 
         Users.id += 1
+        if Users.users_failed < 20:
+            yield response.follow(url='https://www.aceptaelreto.com/user/profile.php?id={}'.format(Users.id),
+                                  callback=self.parse_user)
+
+        def url_join(self, urls, response):
+            joined_urls = []
+            for url in urls:
+                joined_urls.append(response.urljoin(url))
+            return joined_urls
 
 
 # Get Categories
@@ -160,14 +163,17 @@ class Categories(scrapy.Spider):
             for subcat in data['subcats']:
                 # When looking for categories also we do the relation between category and problems
                 # and modify the database
+
                 if int(subcat['numOfProblems']) != 0:
+                    yield category_object
+                    print("Empiezo a insertar PRoblemas")
                     yield response.follow(
                         url='https://www.aceptaelreto.com/ws/cat/{}/problems?_=16428085447'.format(subcat['id']),
                         callback=self.parse_problem_category)
-
-                yield response.follow(
-                    url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(subcat['id']),
-                    callback=self.parse_category)
+                else:
+                    yield response.follow(
+                        url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(subcat['id']),
+                        callback=self.parse_category)
         except Exception as e:
             print("La categoria no existe")
             print(e)

@@ -32,15 +32,17 @@ class Problem(scrapy.Item):
 
 # Class User to scrap data from webpage and save it
 class User(scrapy.Item):
+    id_user = scrapy.Field()
     nick = scrapy.Field()
     name = scrapy.Field()
     country = scrapy.Field()
     institution = scrapy.Field()
-    logo_src = scrapy.Field()
+    image_urls = scrapy.Field()
     shipments = scrapy.Field()
     total_accepteds = scrapy.Field()
     intents = scrapy.Field()
     accepteds = scrapy.Field()
+    images = scrapy.Field()
 
 
 # Class Category to scrap data from webpage and save it

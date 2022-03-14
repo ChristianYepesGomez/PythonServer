@@ -14,27 +14,36 @@ class AerdataPipeline(object):
                 query = "INSERT INTO problems(id_problem,title,no_repeated_accepteds," \
                         "wrong_answer,accepteds,shipments,time_limit,memory_limit,presentation_error," \
                         "attempts,other,restricted_function,compilation_error,c_shipments,cpp_shipments," \
-                        "java_shipments, category_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
+                        "java_shipments) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
                         "ON CONFLICT (id_problem) DO UPDATE SET id_problem = %s,title = %s,no_repeated_accepteds = %s," \
                         "wrong_answer = %s,accepteds = %s,shipments = %s,time_limit = %s,memory_limit = %s," \
                         "presentation_error = %s, attempts = %s,other = %s,restricted_function = %s,compilation_error = %s," \
-                        "c_shipments = %s,cpp_shipments = %s, java_shipments = %s, category_id = %s"
+                        "c_shipments = %s,cpp_shipments = %s, java_shipments = %s"
                 # values for query
                 values = (
                     item["number"], item["title"], item["no_repeated_accepteds"], item["wrong_answer"],
                     item["accepteds"], item["shipments"], item["time_limit"], item["memory_limit"],
                     item["presentation_error"], item["attempts"], item["other"], item["restricted_function"],
                     item["compilation_error"], item["c_shipments"], item["cpp_shipments"], item["java_shipments"],
-                    item["category"], item["number"], item["title"], item["no_repeated_accepteds"],
-                    item["wrong_answer"],
+                    item["number"], item["title"], item["no_repeated_accepteds"], item["wrong_answer"],
                     item["accepteds"], item["shipments"], item["time_limit"], item["memory_limit"],
                     item["presentation_error"], item["attempts"], item["other"], item["restricted_function"],
-                    item["compilation_error"], item["c_shipments"], item["cpp_shipments"], item["java_shipments"],
-                    item["category"])
+                    item["compilation_error"], item["c_shipments"], item["cpp_shipments"], item["java_shipments"])
 
                 # execute and commit
                 self.cur.execute(query, values)
                 self.connection.commit()
+
+                # Relation between problems and categories
+                if item["category"] != None:
+                    query = "INSERT INTO problems_categories(id_problem, id_category) VALUES (%s,%s)" \
+                            "ON CONFLICT (id_problem,id_category) DO UPDATE SET id_problem = %s, id_category = %s"
+
+                    values = (item["number"], item["category"], item["number"], item["category"])
+
+                    # execute and commit
+                    self.cur.execute(query, values)
+                    self.connection.commit()
 
                 return f"{item} Inserted"
             except Exception as e:
@@ -43,37 +52,36 @@ class AerdataPipeline(object):
         # Some if to manage the data according to Object type
         elif isinstance(item, User):
             try:
-                try:
-                    # Insert problems on database or updated if exist
-                    query = "INSERT INTO users(nick,name,country,institution,logo_src,shipments,total_accepteds,intents,accepteds) " \
-                            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
-                            "ON CONFLICT (id_problem) DO UPDATE SET nick = %s,name = %s,country = %s," \
-                            "institution = %s,logo_src = %s,shipments = %s,total_accepteds = %s,intents = %s," \
-                            "accepteds = %s"
-                    # values for query
-                    values = (
-                        item["nick"], item["name"], item["country"], item["institution"],
-                        item["logo_src"], item["shipments"], item["total_accepteds"], item["memory_limit"],
-                        item["presentation_error"], item["attempts"], item["other"], item["restricted_function"],
-                        item["compilation_error"], item["c_shipments"], item["cpp_shipments"], item["java_shipments"],
-                        item["category"])
+                print(item['image_urls'])
+                # Insert problems on database or updated if exist
+                query = "INSERT INTO users(id_user,nick,name,country,institution,logo_src,shipments,total_accepteds,intents,accepteds) " \
+                        "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
+                        "ON CONFLICT (id_user) DO UPDATE SET id_user = %s, nick = %s,name = %s,country = %s," \
+                        "institution = %s,logo_src = %s,shipments = %s,total_accepteds = %s,intents = %s," \
+                        "accepteds = %s"
+                # values for query
+                values = (
+                    item['id_user'], item["nick"], item["name"], item["country"], item["institution"],
+                    item["image_urls"], item["shipments"], item["total_accepteds"], item['intents'],
+                    item['accepteds'], item['id_user'],
+                    item["nick"], item["name"], item["country"], item["institution"],
+                    item["image_urls"], item["shipments"], item["total_accepteds"], item['intents'],
+                    item['accepteds']
+                )
 
-                    # execute and commit
-                    self.cur.execute(query, values)
-                    self.connection.commit()
+                # execute and commit
+                self.cur.execute(query, values)
+                self.connection.commit()
+                return f"{item} Inserted"
 
-                    return f"{item} Inserted"
-                except Exception as e:
-                    print("Fallo insertando Problemas")
-                    print(e)
-                print("a")
             except Exception as e:
                 print("Fallo insertando usuarios")
                 print(e)
         # Some if to manage the data according to Object type
         elif isinstance(item, Category):
             try:
-                print(item)
+                print("INSERTANDO CATEGORIA: " + str(item["id"]))
+                print(item["name"])
                 # Insert problems on database or updated if exist
                 query = "INSERT INTO categories(id_category,name,related_category) VALUES (%s,%s,%s)" \
                         "ON CONFLICT (id_category) DO UPDATE SET id_category = %s, name = %s, related_category = %s"
