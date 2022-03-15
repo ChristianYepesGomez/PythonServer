@@ -125,55 +125,37 @@ class Categories(scrapy.Spider):
 
     def parse(self, response):
         # Scrap categories the url with all father categories
-
-        import chompjs
-        javascript = response.css('script::text').get()
-        data = chompjs.parse_js_object(javascript)
-        # Create a Category object to save the data
-
-        for subcat in data['subcats']:
-            yield response.follow(
-                url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(subcat['id']),
-                callback=self.parse_category)
-
-    def parse_category(self, response):
         try:
-            # Select the text inside <script> from JS file of the webpage
-            # and parse it to json with the library chompjs
-
             import chompjs
             javascript = response.css('script::text').get()
             data = chompjs.parse_js_object(javascript)
             # Create a Category object to save the data
-            category_object = Category()
-            # Need the index to the relation between categories
-            index = int(len(data['path']))
-            category_object['id'] = data['id']
-            category_object['name'] = data['name']
 
-            # If have some path, have a relation
-            # The relation its calculated with the last item in the 'path' and his ID
-            if index != 0:
-                category_object['related_category'] = data['path'][int(index) - 1]['id']
-            else:
-                category_object['related_category'] = None
-            # Call pipelines to manage the object
-            yield category_object
+            for data in data['subcats']:
+                category_object = Category()
+                index = int(len(data['path']))
+                category_object['id'] = data['id']
+                category_object['name'] = data['name']
 
-            for subcat in data['subcats']:
-                # When looking for categories also we do the relation between category and problems
-                # and modify the database
-
-                if int(subcat['numOfProblems']) != 0:
-                    yield category_object
-                    print("Empiezo a insertar PRoblemas")
-                    yield response.follow(
-                        url='https://www.aceptaelreto.com/ws/cat/{}/problems?_=16428085447'.format(subcat['id']),
-                        callback=self.parse_problem_category)
+                # If have some path, have a relation
+                # The relation its calculated with the last item in the 'path' and his ID
+                if index != 0:
+                    category_object['related_category'] = data['path'][int(index) - 1]['id']
                 else:
+                    category_object['related_category'] = None
+                # Call pipelines to manage the object
+                print(category_object)
+                yield category_object
+
+                if int(data['numOfProblems']) != 0:
+                    print("Empiezo a insertar Problemas")
                     yield response.follow(
-                        url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(subcat['id']),
-                        callback=self.parse_category)
+                        url='https://www.aceptaelreto.com/ws/cat/{}/problems?_=16428085447'.format(data['id']),
+                        callback=self.parse_problem_category)
+
+                yield response.follow(
+                    url='https://www.aceptaelreto.com/problems/categories.php/?cat={}'.format(data['id']),
+                    callback=self.parse)
         except Exception as e:
             print("La categoria no existe")
             print(e)
