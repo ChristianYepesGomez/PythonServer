@@ -1,4 +1,3 @@
-import psycopg2
 from .items import Problem, User, Category
 
 
@@ -31,8 +30,8 @@ class AerdataPipeline(object):
                     item["compilation_error"], item["c_shipments"], item["cpp_shipments"], item["java_shipments"])
 
                 # execute and commit
-                self.cur.execute(query, values)
-                self.connection.commit()
+                spider.cur.execute(query, values)
+                spider.connection.commit()
 
                 # Relation between problems and categories
                 if item["category"] != None:
@@ -42,8 +41,8 @@ class AerdataPipeline(object):
                     values = (item["number"], item["category"], item["number"], item["category"])
 
                     # execute and commit
-                    self.cur.execute(query, values)
-                    self.connection.commit()
+                    spider.cur.execute(query, values)
+                    spider.connection.commit()
 
                 return f"{item} Inserted"
             except Exception as e:
@@ -70,10 +69,9 @@ class AerdataPipeline(object):
                 )
 
                 # execute and commit
-                self.cur.execute(query, values)
-                self.connection.commit()
+                spider.cur.execute(query, values)
+                spider.connection.commit()
                 return f"{item} Inserted"
-
             except Exception as e:
                 print("Fallo insertando usuarios")
                 print(e)
@@ -91,27 +89,11 @@ class AerdataPipeline(object):
                     item['id'], item['name'], item['related_category'],
                     item['id'], item['name'], item['related_category'])
 
-                self.cur.execute(query, values)
-                self.connection.commit()
+                spider.cur.execute(query, values)
+                spider.connection.commit()
                 return f"{item} Inserted"
             except Exception as e:
                 print("Fallo insertando categorias")
                 print(e)
         else:
             return f" ------ {item} FAILED -----"
-
-    # Define function to connect to database
-    def open_spider(self, spider):
-        hostname = 'postgresql'
-        username = 'root'
-        password = 'root'
-        database = 'API_AER'
-        self.connection = psycopg2.connect(
-            host=hostname, user=username, password=password,
-            dbname=database)
-        self.cur = self.connection.cursor()
-
-    # Define function to disconnect from database
-    def close_spider(self, spider):
-        self.cur.close()
-        self.connection.close()

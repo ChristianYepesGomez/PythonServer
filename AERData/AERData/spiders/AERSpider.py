@@ -1,10 +1,33 @@
 from ..items import *
+import pg8000
+
+hostname = 'dumbo.db.elephantsql.com'
+username = 'xlbxptzc'
+password = 'UvzXyXxzxsLCJEUUaLPbsokP-ZeDwsL-'
+database = 'xlbxptzc'
+port = '5432'
 
 
 # Get Problems class
 class Problems(scrapy.Spider):
     name = 'AERProblems'
     start_urls = ['https://www.aceptaelreto.com']
+
+    def __init__(self):
+        self.connection = pg8000.connect(
+            user=username, host=hostname, password=password,
+            database=database, port=port)
+        self.cur = self.connection.cursor()
+
+    def insert(self, query, params):
+        try:
+            self.cur.execute(query, params)
+            self.connection.commit()
+        except Exception as ex:
+            self.connection.rollback()
+
+    def __del__(self):
+        self.connection.close()
 
     def parse(self, response):
         # Scrap volumes XML
@@ -56,6 +79,18 @@ class Users(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com']
     id = 1
     users_failed = 0
+    connection = pg8000.connect(user=username, host=hostname, password=password, database=database, port=port)
+    cur = connection.cursor()
+
+    def insert(self, query, params):
+        try:
+            self.cur.execute(query, params)
+            self.connection.commit()
+        except Exception as ex:
+            self.connection.rollback()
+
+    def __del__(self):
+        self.connection.close()
 
     def parse(self, response):
         # Scrap user info webpage
@@ -122,6 +157,22 @@ class Users(scrapy.Spider):
 class Categories(scrapy.Spider):
     name = 'AERCategories'
     start_urls = ['https://www.aceptaelreto.com/problems/categories.php']
+
+    def __init__(self):
+        self.connection = pg8000.connect(
+            user=username, host=hostname, password=password,
+            database=database, port=port)
+        self.cur = self.connection.cursor()
+
+    def insert(self, query, params):
+        try:
+            self.cur.execute(query, params)
+            self.connection.commit()
+        except Exception as ex:
+            self.connection.rollback()
+
+    def __del__(self):
+        self.connection.close()
 
     def parse(self, response):
         # Scrap categories the url with all father categories
