@@ -1,2 +1,0 @@
-#run bash script every day
-@daily /app/scripts/crawl.sh

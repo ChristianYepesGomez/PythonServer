@@ -1,11 +1,15 @@
 from ..items import *
+from platformshconfig import Config
 import pg8000
 
-hostname = 'dumbo.db.elephantsql.com'
-username = 'xlbxptzc'
-password = 'UvzXyXxzxsLCJEUUaLPbsokP-ZeDwsL-'
-database = 'xlbxptzc'
-port = '5432'
+config = Config()
+database = config.credentials('postgresql')
+
+hostname = '127.0.0.1'
+username = 'main'
+password = 'main'
+database = 'main'
+port = '30000'
 
 
 # Get Problems class
