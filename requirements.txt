@@ -1,6 +1,6 @@
-Scrapy==2.5.1
-Django==3.2.11
+Scrapy==2.6.1
+pg8000==1.26.0
+Django==4.0.4
 djangorestframework==3.13.1
-psycopg2==2.9.3
 chompjs==1.1.6
 pillow==9.0.1
