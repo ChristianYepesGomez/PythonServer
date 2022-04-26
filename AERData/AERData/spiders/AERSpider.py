@@ -1,15 +1,15 @@
 from ..items import *
 from platformshconfig import Config
-import pg8000
+import psycopg2
 
-config = Config()
-database = config.credentials('postgresql')
+# config = Config()
+# database = config.credentials('postgresql')
 
-hostname = '127.0.0.1'
-username = 'main'
-password = 'main'
-database = 'main'
-port = '30000'
+hostname = 'postgresql'
+username = 'root'
+password = 'root'
+database = 'API_AER'
+port = '5432'
 
 
 # Get Problems class
@@ -18,9 +18,9 @@ class Problems(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com']
 
     def __init__(self):
-        self.connection = pg8000.connect(
+        self.connection = psycopg2.connect(
             user=username, host=hostname, password=password,
-            database=database, port=port)
+            dbname=database, port=port)
         self.cur = self.connection.cursor()
 
     def insert(self, query, params):
@@ -83,7 +83,7 @@ class Users(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com']
     id = 1
     users_failed = 0
-    connection = pg8000.connect(user=username, host=hostname, password=password, database=database, port=port)
+    connection = psycopg2.connect(user=username, host=hostname, password=password, dbname=database, port=port)
     cur = connection.cursor()
 
     def insert(self, query, params):
@@ -163,9 +163,9 @@ class Categories(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com/problems/categories.php']
 
     def __init__(self):
-        self.connection = pg8000.connect(
+        self.connection = psycopg2.connect(
             user=username, host=hostname, password=password,
-            database=database, port=port)
+            dbname=database, port=port)
         self.cur = self.connection.cursor()
 
     def insert(self, query, params):

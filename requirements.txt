@@ -1,6 +1,7 @@
 Scrapy==2.6.1
-pg8000==1.26.0
-Django==4.0.4
+psycopg2-binary
+Django==3.2.13
 djangorestframework==3.13.1
 chompjs==1.1.6
 pillow==9.0.1
+platformshconfig
