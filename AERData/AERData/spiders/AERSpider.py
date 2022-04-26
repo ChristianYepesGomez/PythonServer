@@ -2,19 +2,19 @@ from ..items import *
 from platformshconfig import Config
 import psycopg2
 
-# config = Config()
-# database = config.credentials('dbpostgres')
-# hostname = '127.0.0.1'
-# username = 'main'
-# password = 'main'
-# database = 'main'
-# port = '30000'
+config = Config()
+database = config.credentials('database')
+hostname = '127.0.0.1'
+username = 'main'
+password = 'main'
+database = 'main'
+port = '30000'
 
-hostname = 'postgresql'
-username = 'root'
-password = 'root'
-database = 'API_AER'
-port = '5432'
+# hostname = 'postgresql'
+# username = 'root'
+# password = 'root'
+# database = 'API_AER'
+# port = '5432'
 
 
 # Get Problems class
