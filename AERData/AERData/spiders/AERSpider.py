@@ -3,7 +3,7 @@ from platformshconfig import Config
 import psycopg2
 
 config = Config()
-database = config.credentials('postgresql')
+database = config.credentials('dbpostgres')
 hostname = '127.0.0.1'
 username = 'main'
 password = 'main'
