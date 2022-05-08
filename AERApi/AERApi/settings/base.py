@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'applications.usuarios',
     'applications.categorias',
     'applications.problemas',
+    'rest_framework',
 
 ]
 
