@@ -2,12 +2,16 @@ version: '3.8'
 services:
   web:
     build:
-      context: .
+      context: AERApi/
     ports:
-      - "5000:8000"
+      - "8091:8000"
     volumes:
       - ./:/app
     command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - POSTGRES_NAME=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
     links:
       - db:postgresql
     depends_on:
@@ -18,9 +22,9 @@ services:
     build: ./db
     restart: always
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: API_AER
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -42,6 +46,13 @@ services:
       - ./pgadmin/servers.json:/pgadmin4/servers.json
     networks:
       - AER
+  spiders:
+    build: ./AERData
+    links:
+      - db:posgresql
+    networks:
+      - AER
+
 networks:
   AER:
     driver: bridge

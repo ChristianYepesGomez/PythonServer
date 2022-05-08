@@ -1,21 +1,12 @@
 from ..items import *
-from platformshconfig import Config
 import psycopg2
+import os
 
-config = Config()
-database = config.credentials('database')
-hostname = '127.0.0.1'
-username = 'main'
-password = 'main'
-database = 'main'
-port = '30000'
-
-# hostname = 'postgresql'
-# username = 'root'
-# password = 'root'
-# database = 'API_AER'
-# port = '5432'
-
+name = os.environ.get('POSTGRES_NAME'),
+user = os.environ.get('POSTGRES_USER'),
+password = os.environ.get('POSTGRES_PASSWORD'),
+hostname = db
+port = 5432
 
 # Get Problems class
 class Problems(scrapy.Spider):
@@ -23,9 +14,7 @@ class Problems(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com']
 
     def __init__(self):
-        self.connection = psycopg2.connect(
-            user=username, host=hostname, password=password,
-            dbname=database, port=port)
+        self.connection = psycopg2.connect(user=user, host=hostname, password=password, dbname=name, port=port)
         self.cur = self.connection.cursor()
 
     def insert(self, query, params):

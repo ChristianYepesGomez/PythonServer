@@ -1,5 +1,6 @@
 db/
 pgadmin/
-scripts/
-Dockerfile/
+AERData/scripts/
+AERApi/Dockerfile/
 docker-compose.yml/
+.env

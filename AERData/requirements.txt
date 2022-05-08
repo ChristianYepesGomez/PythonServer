@@ -1,0 +1,3 @@
+Scrapy==2.6.1
+psycopg2-binary
+chompjs==1.1.6
