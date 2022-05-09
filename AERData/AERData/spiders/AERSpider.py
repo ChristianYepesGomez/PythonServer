@@ -2,10 +2,11 @@ from ..items import *
 import psycopg2
 import os
 
-name = os.environ.get('POSTGRES_NAME'),
-user = os.environ.get('POSTGRES_USER'),
-password = os.environ.get('POSTGRES_PASSWORD'),
-hostname = db
+name = os.environ.get('POSTGRES_NAME')
+print(name)
+user = os.environ.get('POSTGRES_USER')
+password = os.environ.get('POSTGRES_PASSWORD')
+hostname = 'postgresql'
 port = 5432
 
 # Get Problems class
@@ -77,7 +78,7 @@ class Users(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com']
     id = 1
     users_failed = 0
-    connection = psycopg2.connect(user=username, host=hostname, password=password, dbname=database, port=port)
+    self.connection = psycopg2.connect(user=user, host=hostname, password=password, dbname=name, port=port)
     cur = connection.cursor()
 
     def insert(self, query, params):
@@ -157,9 +158,7 @@ class Categories(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com/problems/categories.php']
 
     def __init__(self):
-        self.connection = psycopg2.connect(
-            user=username, host=hostname, password=password,
-            dbname=database, port=port)
+        self.connection = psycopg2.connect(user=user, host=hostname, password=password, dbname=name, port=port)
         self.cur = self.connection.cursor()
 
     def insert(self, query, params):
