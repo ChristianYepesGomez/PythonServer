@@ -1,5 +1,5 @@
 from django.db import models
-from applications.categorias.models import Categories
+from apps.categorias.models import Categories
 
 
 # Create your models here.

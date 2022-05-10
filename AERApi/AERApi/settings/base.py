@@ -22,11 +22,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Local apps
-    'applications.usuarios',
-    'applications.categorias',
-    'applications.problemas',
+    'apps.usuarios',
+    'apps.problemas',
+    'apps.categorias',
     'rest_framework',
-
+    'django_filters',
 ]
 
 DATABASES = {
@@ -102,3 +102,7 @@ USE_L10N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
