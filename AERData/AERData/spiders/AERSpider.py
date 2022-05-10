@@ -9,13 +9,14 @@ password = os.environ.get('POSTGRES_PASSWORD')
 hostname = 'postgresql'
 port = 5432
 
+
 # Get Problems class
 class Problems(scrapy.Spider):
     name = 'AERProblems'
     start_urls = ['https://www.aceptaelreto.com']
 
     def __init__(self):
-        self.connection = psycopg2.connect(user=user, host=hostname, password=password, dbname=name, port=port)
+        self.connection = psycopg2.connect(user=user, host=hostname, password=password, database=name, port=port)
         self.cur = self.connection.cursor()
 
     def insert(self, query, params):
@@ -78,8 +79,10 @@ class Users(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com']
     id = 1
     users_failed = 0
-    self.connection = psycopg2.connect(user=user, host=hostname, password=password, dbname=name, port=port)
-    cur = connection.cursor()
+
+    def __init__(self):
+        self.connection = psycopg2.connect(user=user, host=hostname, password=password, database=name, port=port)
+        self.cur = self.connection.cursor()
 
     def insert(self, query, params):
         try:
@@ -158,7 +161,7 @@ class Categories(scrapy.Spider):
     start_urls = ['https://www.aceptaelreto.com/problems/categories.php']
 
     def __init__(self):
-        self.connection = psycopg2.connect(user=user, host=hostname, password=password, dbname=name, port=port)
+        self.connection = psycopg2.connect(user=user, host=hostname, password=password, database=name, port=port)
         self.cur = self.connection.cursor()
 
     def insert(self, query, params):

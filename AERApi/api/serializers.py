@@ -15,17 +15,18 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Categories
-        fields = ['url', 'name']
+        fields = ['id_category', 'name', 'related_category']
 
 
 class ProblemSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-
         model = Problems
-        fields = ['url', 'name']
+        fields = ['id_problem', 'title', 'no_repeated_accepteds', 'wrong_answer', 'accepteds', 'shipments',
+                  'time_limit', 'memory_limit', 'presentation_error', 'attempts', 'other', 'restricted_function',
+                  'compilation_error', 'c_shipments', 'cpp_shipments', 'java_shipments']
 
-class BlacListUsersSerializer(serializers.HyperlinkedModelSerializer):
+
+class BlackListUsersSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-
         model = Problems
         fields = ['url', 'name']

@@ -58,7 +58,6 @@ services:
       - POSTGRES_NAME=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
-    command: scrapy crawl AERProblems
 networks:
   AER:
     driver: bridge

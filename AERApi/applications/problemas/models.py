@@ -28,7 +28,7 @@ class Problems(models.Model):
 
 
 class ProblemsCategories(models.Model):
-    id_problem = models.OneToOneField(Problems, models.DO_NOTHING, db_column='id_problem', primary_key=True)
+    id_problem = models.ForeignKey(Problems, models.DO_NOTHING, db_column='id_problem')
     id_category = models.ForeignKey(Categories, models.DO_NOTHING, db_column='id_category')
 
     class Meta:

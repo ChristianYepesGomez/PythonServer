@@ -8,3 +8,4 @@ export PATH
 scrapy crawl AERProblems
 scrapy crawl AERProblemsByCategory
 scrapy crawl AERCategories
+scrapy crawl AERUsers
