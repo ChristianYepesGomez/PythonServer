@@ -35,8 +35,8 @@ class AerdataPipeline(object):
 
                 # Relation between problems and categories
                 if item["category"] != None:
-                    query = "INSERT INTO problems_categories(id_problem, id_category) VALUES (%s,%s)" \
-                            "ON CONFLICT (id_problem,id_category) DO UPDATE SET id_problem = %s, id_category = %s"
+                    query = "INSERT INTO problems_categories(problems_id, categories_id) VALUES (%s,%s)" \
+                            "ON CONFLICT (problems_id,categories_id) DO UPDATE SET problems_id = %s, categories_id = %s"
 
                     values = (item["number"], item["category"], item["number"], item["category"])
 
