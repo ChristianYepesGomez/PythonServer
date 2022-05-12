@@ -19,10 +19,12 @@ from . import views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register(r'', views.ProblemViewSet)
-router.register(r'by_categoria', views.ProblemViewSet)
-
+router.register(r'base', views.ProblemViewSet, basename="problems")
+router.register(r'with_categories', views.ProblemViewSetWithCategories, basename="problems_with_categories")
+router.register(r'by_accepteds', views.ProblemViewByAccepteds, basename="problems_by_accepteds")
+router.register(r'by_completed_percentage', views.ProblemViewByCompletedPercentage,
+                basename="problems_by_completed_percentage")
 
 urlpatterns = [
-    path('',include(router.urls)),
+    path('', include(router.urls)),
 ]

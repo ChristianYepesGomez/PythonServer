@@ -22,15 +22,8 @@ class Problems(models.Model):
     c_shipments = models.IntegerField()
     cpp_shipments = models.IntegerField()
     java_shipments = models.IntegerField()
+    percentage_users_completed = models.IntegerField()
     categories = models.ManyToManyField(Categories)
+
     class Meta:
         db_table = 'problems'
-
-
-# class ProblemsCategories(models.Model):
-#     id_problem = models.ForeignKey(Problems, models.DO_NOTHING, db_column='id_problem')
-#     id_category = models.ForeignKey(Categories, models.DO_NOTHING, db_column='id_category')
-#
-#     class Meta:
-#         db_table = 'problems_categories'
-#         unique_together = (('id_problem', 'id_category'),)

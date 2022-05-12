@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'apps.categorias',
     'rest_framework',
     'django_filters',
+    'drf_yasg',
 ]
 
 DATABASES = {
@@ -108,4 +109,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
+}
+
+SWAGGER_SETTINGS = {
+    'DOC_EXPANSION': 'none'
 }

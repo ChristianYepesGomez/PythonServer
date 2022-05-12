@@ -13,21 +13,23 @@ class AerdataPipeline(object):
                 query = "INSERT INTO problems(id_problem,title,no_repeated_accepteds," \
                         "wrong_answer,accepteds,shipments,time_limit,memory_limit,presentation_error," \
                         "attempts,other,restricted_function,compilation_error,c_shipments,cpp_shipments," \
-                        "java_shipments) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
+                        "java_shipments, percentage_users_completed) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
                         "ON CONFLICT (id_problem) DO UPDATE SET id_problem = %s,title = %s,no_repeated_accepteds = %s," \
                         "wrong_answer = %s,accepteds = %s,shipments = %s,time_limit = %s,memory_limit = %s," \
                         "presentation_error = %s, attempts = %s,other = %s,restricted_function = %s,compilation_error = %s," \
-                        "c_shipments = %s,cpp_shipments = %s, java_shipments = %s"
+                        "c_shipments = %s,cpp_shipments = %s, java_shipments = %s, percentage_users_completed = %s"
                 # values for query
                 values = (
                     item["number"], item["title"], item["no_repeated_accepteds"], item["wrong_answer"],
                     item["accepteds"], item["shipments"], item["time_limit"], item["memory_limit"],
                     item["presentation_error"], item["attempts"], item["other"], item["restricted_function"],
                     item["compilation_error"], item["c_shipments"], item["cpp_shipments"], item["java_shipments"],
+                    item["percentage_users_completed"],
                     item["number"], item["title"], item["no_repeated_accepteds"], item["wrong_answer"],
                     item["accepteds"], item["shipments"], item["time_limit"], item["memory_limit"],
                     item["presentation_error"], item["attempts"], item["other"], item["restricted_function"],
-                    item["compilation_error"], item["c_shipments"], item["cpp_shipments"], item["java_shipments"])
+                    item["compilation_error"], item["c_shipments"], item["cpp_shipments"], item["java_shipments"],
+                    item["percentage_users_completed"])
 
                 # execute and commit
                 spider.cur.execute(query, values)

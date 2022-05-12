@@ -27,6 +27,7 @@ class Problem(scrapy.Item):
     c_shipments = scrapy.Field()
     cpp_shipments = scrapy.Field()
     java_shipments = scrapy.Field()
+    percentage_users_completed = scrapy.Field()
     category = scrapy.Field()
 
 

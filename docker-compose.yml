@@ -48,6 +48,8 @@ services:
       - AER
   spiders:
     build: ./AERData
+    volumes:
+      - ./AERData/AERData:/spiders/AERData
     links:
       - db:postgresql
     networks:
