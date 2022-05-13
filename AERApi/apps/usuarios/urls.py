@@ -20,9 +20,7 @@ from rest_framework import routers
 from .views import *
 
 router = routers.DefaultRouter()
-router.register(r'all', views.UserViewSet)
-
-urlpatterns = router.urls
+router.register(r'base', views.UserViewSet, basename='users')
 
 urlpatterns = [
     path('', include(router.urls)),

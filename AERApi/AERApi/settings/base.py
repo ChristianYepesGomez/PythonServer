@@ -105,7 +105,8 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend',
+                                'rest_framework.filters.OrderingFilter', ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
@@ -114,3 +115,6 @@ REST_FRAMEWORK = {
 SWAGGER_SETTINGS = {
     'DOC_EXPANSION': 'none'
 }
+
+ALLOWED_HOSTS = ['84.121.186.190', 'localhost']
+DEBUG = True

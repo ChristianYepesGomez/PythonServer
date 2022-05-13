@@ -4,16 +4,18 @@ from rest_framework import viewsets
 from .serializers import UserSerializer
 from .models import Users
 from django.http import HttpResponse
+from .filters import UsersFilter
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = Users.objects.all().order_by('id_user')
     serializer_class = UserSerializer
     filterset_fields = ['country', 'institution', 'name', 'nick']
 
-    # @link()
-    # def by_accepteds(self, request, *args, **kwargs):
-    #     users = self.get_object()
-    #     data = users.all()
-    #     serializer = UserSerializer(data)
-    #     return Response(serializer.data)
+    model = Users
+    queryset = model.objects.all()
+    serializer_class = UserSerializer
+    filterset_class = UsersFilter
+    ordering_fields = ['accepteds', 'intents', ]
+    ordering = ['id_user']
+    http_method_names = ['get']
