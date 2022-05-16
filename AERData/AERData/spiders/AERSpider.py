@@ -50,8 +50,6 @@ class Problems(scrapy.Spider):
         for problem in problems:
             # Create item for every problem
             problem_item = Problem()
-            percecentage_users_completed = round(int(problem.xpath('.//dacu/text()').get()) / int(
-                problem.xpath('.//totalUsers/text()').get()) * 100)
             # General data from the problem
             problem_item['number'] = problem.xpath('.//num/text()').get()
             problem_item['title'] = problem.xpath('.//title/text()').get()
@@ -71,7 +69,6 @@ class Problems(scrapy.Spider):
             problem_item['c_shipments'] = problem.xpath('.//c/text()').get()
             problem_item['cpp_shipments'] = problem.xpath('.//cpp/text()').get()
             problem_item['java_shipments'] = problem.xpath('.//java/text()').get()
-            problem_item['percentage_users_completed'] = percecentage_users_completed
             problem_item['category'] = None
             yield problem_item
 
@@ -224,8 +221,6 @@ class Categories(scrapy.Spider):
         for problem in problems_list:
             # Create item for every problem
             problem_item = Problem()
-            percecentage_users_completed = round(int(problem.xpath('.//dacu/text()').get()) / int(
-                problem.xpath('.//totalUsers/text()').get()) * 100)
             # General data from the problem
             problem_item['number'] = problem.xpath('.//num/text()').get()
             problem_item['title'] = problem.xpath('.//title/text()').get()
@@ -245,6 +240,5 @@ class Categories(scrapy.Spider):
             problem_item['c_shipments'] = problem.xpath('.//c/text()').get()
             problem_item['cpp_shipments'] = problem.xpath('.//cpp/text()').get()
             problem_item['java_shipments'] = problem.xpath('.//java/text()').get()
-            problem_item['percentage_users_completed'] = percecentage_users_completed
             problem_item['category'] = response.url.split("/")[5]
             yield problem_item

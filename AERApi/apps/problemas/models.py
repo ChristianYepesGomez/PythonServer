@@ -22,8 +22,11 @@ class Problems(models.Model):
     c_shipments = models.IntegerField()
     cpp_shipments = models.IntegerField()
     java_shipments = models.IntegerField()
-    percentage_users_completed = models.IntegerField()
     categories = models.ManyToManyField(Categories)
 
     class Meta:
         db_table = 'problems'
+
+    @property
+    def percentage_users_completed(self):
+        return round(self.no_repeated_accepteds / self.attempts * 100)
