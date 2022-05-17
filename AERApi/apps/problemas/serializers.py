@@ -1,17 +1,11 @@
 from .models import Problems
-from apps.categorias.models import Categories
+from apps.categorias.serializers import CategorySerializer
 
 from rest_framework import serializers
 
 
-class CategorySerializerProblems(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Categories
-        fields = ('name',)
-
-
 class ProblemSerializer(serializers.HyperlinkedModelSerializer):
-    categories = CategorySerializerProblems(read_only=True, many=True)
+    categories = CategorySerializer(read_only=True, many=True)
 
     class Meta:
         model = Problems
