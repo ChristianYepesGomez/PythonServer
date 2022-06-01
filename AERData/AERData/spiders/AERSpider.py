@@ -108,6 +108,7 @@ class Users(scrapy.Spider):
             # If the user exists, look the info, else go to next
             if not response.xpath("//div[@class='alert alert-danger']"):
                 user = User()
+                institution = Institution()
                 count_row_accepteds = 0
                 count_row_attempteds = 0
                 user['array_problems_accepted'] = {}
@@ -120,10 +121,13 @@ class Users(scrapy.Spider):
                 try:
                     user['institution'] = \
                         extract_xpath("/html/body/div[1]/div/div[2]/div/div[2]/div/div[1]/div[4]/div/p/a")[0].get()
+                    institution['name'] = \
+                        extract_xpath("/html/body/div[1]/div/div[2]/div/div[2]/div/div[1]/div[4]/div/p/a")[0].get()
                     relative_img_urls = response.xpath("//div[@class='col-sm-8']//a//img/@src")[0].get(),
                     # user['image_urls'] = self.url_join(relative_img_urls, response)
                 except:
                     user['institution'] = extract_xpath("//div[@class='col-sm-8']//p")[3].get().strip()
+                    institution['name'] = extract_xpath("//div[@class='col-sm-8']//p")[3].get().strip()
                 user['image_urls'] = ""
                 # If the user have tried to send any solution, look the stats, else set stats to 0
                 if not response.xpath("//div[@class='alert alert-info']"):
@@ -140,6 +144,9 @@ class Users(scrapy.Spider):
                     user['total_accepteds'] = 0
                     user['intents'] = 0
                     user['accepteds'] = 0
+                institution['problems_solved'] = user['accepteds']
+                institution['shipments'] = user['shipments']
+                institution['logo_src'] = ""
 
                 if response.xpath("//tbody[@class='table-hover']"):
                     problems_resolved = response.xpath("//tbody[@class='table-hover']/tr")
@@ -154,7 +161,9 @@ class Users(scrapy.Spider):
                         count_row_attempteds += 1
                 else:
                     pass
+                yield institution
                 yield user
+                
                 # Reset the failed users
                 Users.users_failed = 0
             else:

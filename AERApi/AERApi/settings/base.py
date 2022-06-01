@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'apps.usuarios',
     'apps.problemas',
     'apps.categorias',
+    'apps.institutions',
     'rest_framework',
     'django_filters',
     'drf_yasg',

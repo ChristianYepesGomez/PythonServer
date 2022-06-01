@@ -1,4 +1,4 @@
-from .items import Problem, User, Category
+from .items import Problem, User, Category, Institution
 
 
 class AerdataPipeline(object):
@@ -51,6 +51,22 @@ class AerdataPipeline(object):
         # Some if to manage the data according to Object type
         elif isinstance(item, User):
             try:
+
+                query = "SELECT id " \
+                        "FROM institutions " \
+                        "WHERE name = %s"
+
+                values = (
+                    item["institution"],
+                )
+
+                spider.cur.execute(query, values)
+                data = spider.cur.fetchall()
+
+                institution_id = 0
+                for row in data:
+                    institution_id += row[0]
+
                 # Insert problems on database or updated if exist
                 query = "INSERT INTO users(id_user,nick,name,country,institution,logo_src,shipments,total_accepteds,intents,accepteds) " \
                         "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
@@ -59,16 +75,29 @@ class AerdataPipeline(object):
                         "accepteds = %s"
                 # values for query
                 values = (
-                    item['id_user'], item["nick"], item["name"], item["country"], item["institution"],
+                    item['id_user'], item["nick"], item["name"], item["country"], institution_id,
                     item["image_urls"], item["shipments"], item["total_accepteds"], item['intents'],
                     item['accepteds'], item['id_user'],
-                    item["nick"], item["name"], item["country"], item["institution"],
+                    item["nick"], item["name"], item["country"], institution_id,
                     item["image_urls"], item["shipments"], item["total_accepteds"], item['intents'],
                     item['accepteds']
                 )
 
                 # execute and commit
                 spider.cur.execute(query, values)
+
+                if (institution_id != 0):
+                    # Insert problems on database or updated if exist
+                    query = "INSERT INTO institutions_users(institutions_id,users_id) " \
+                            "VALUES (%s,%s) " \
+                            "ON CONFLICT (institutions_id, users_id) DO UPDATE SET institutions_id = %s, users_id = %s"
+                    # values for query
+                    values = (
+                        institution_id, item['id_user'], institution_id, item['id_user']
+                    )
+
+                    # execute and commit
+                    spider.cur.execute(query, values)
 
                 contador = 0
                 for problema, valor in item['array_problems_accepted'].items():
@@ -106,6 +135,7 @@ class AerdataPipeline(object):
                     spider.cur.execute(query, values)
 
                 spider.connection.commit()
+
                 return f"{item} Inserted"
             except Exception as e:
                 print("Fallo insertando usuarios")
@@ -130,5 +160,39 @@ class AerdataPipeline(object):
             except Exception as e:
                 print("Fallo insertando categorias")
                 print(e)
+        elif isinstance(item, Institution):
+            if (item['name'] != "" and item['name'] != "Sin establecer"):
+                query = "SELECT problems_solved, shipments " \
+                        "FROM institutions " \
+                        "WHERE name = %s"
+
+                values = (
+                    item["name"],
+                )
+
+                spider.cur.execute(query, values)
+                data = spider.cur.fetchall()
+
+                problems_solved = int(item['problems_solved'])
+                shipments = int(item['shipments'])
+                for row in data:
+                    problems_solved += row[0]
+                    shipments = +row[1]
+
+                # Insert problems on database or updated if exist
+                query = "INSERT INTO institutions(name,problems_solved,shipments,logo_src) " \
+                        "VALUES (%s,%s,%s,%s)" \
+                        "ON CONFLICT (name) DO UPDATE SET name = %s,problems_solved = %s,shipments = %s," \
+                        "logo_src = %s"
+
+                # values for query
+                values = (
+                    item["name"], problems_solved, shipments, item["logo_src"],
+                    item["name"], problems_solved, shipments, item["logo_src"],
+                )
+
+                # execute and commit
+                spider.cur.execute(query, values)
+
         else:
             return f" ------ {item} FAILED -----"

@@ -53,3 +53,13 @@ class Category(scrapy.Item):
     id = scrapy.Field()
     name = scrapy.Field()
     related_category = scrapy.Field()
+
+
+# Class Institution to scrap data from webpage and save it
+class Institution(scrapy.Item):
+    id = scrapy.Field()
+    name = scrapy.Field()
+    problems_solved = scrapy.Field()
+    shipments = scrapy.Field()
+    users = scrapy.Field()
+    logo_src = scrapy.Field()
