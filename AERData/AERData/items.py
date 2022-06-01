@@ -44,6 +44,8 @@ class User(scrapy.Item):
     intents = scrapy.Field()
     accepteds = scrapy.Field()
     images = scrapy.Field()
+    array_problems_accepted = scrapy.Field()
+    array_problems_attempted = scrapy.Field()
 
 
 # Class Category to scrap data from webpage and save it

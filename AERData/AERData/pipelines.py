@@ -51,7 +51,6 @@ class AerdataPipeline(object):
         # Some if to manage the data according to Object type
         elif isinstance(item, User):
             try:
-                print(item['image_urls'])
                 # Insert problems on database or updated if exist
                 query = "INSERT INTO users(id_user,nick,name,country,institution,logo_src,shipments,total_accepteds,intents,accepteds) " \
                         "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)" \
@@ -70,6 +69,42 @@ class AerdataPipeline(object):
 
                 # execute and commit
                 spider.cur.execute(query, values)
+
+                contador = 0
+                for problema, valor in item['array_problems_accepted'].items():
+                    query = "INSERT INTO users_problems_attempted(resolved,id_problem,id_user) " \
+                            "VALUES (%s,%s,%s) " \
+                            "ON CONFLICT (id_user, id_problem) DO UPDATE SET resolved = %s, id_problem = %s, id_user = %s"
+
+                    splited_valor = valor.split(" ")
+
+                    id_problem_splited = splited_valor[0]
+
+                    values = (
+                        True, id_problem_splited, item['id_user'], True, id_problem_splited, item['id_user']
+                    )
+
+                    contador += 1
+
+                    spider.cur.execute(query, values)
+
+                for problema, valor in item['array_problems_attempted'].items():
+                    query = "INSERT INTO users_problems_attempted(resolved,id_problem,id_user) " \
+                            "VALUES (%s,%s,%s) " \
+                            "ON CONFLICT (id_user, id_problem) DO UPDATE SET resolved = %s, id_problem = %s, id_user = %s"
+
+                    splited_valor = valor.split(" ")
+
+                    id_problem_splited = splited_valor[0]
+
+                    values = (
+                        False, id_problem_splited, item['id_user'], False, id_problem_splited, item['id_user']
+                    )
+
+                    contador += 1
+
+                    spider.cur.execute(query, values)
+
                 spider.connection.commit()
                 return f"{item} Inserted"
             except Exception as e:

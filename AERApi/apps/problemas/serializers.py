@@ -13,3 +13,9 @@ class ProblemSerializer(serializers.HyperlinkedModelSerializer):
                   'time_limit', 'memory_limit', 'presentation_error', 'attempts', 'other', 'restricted_function',
                   'compilation_error', 'c_shipments', 'cpp_shipments', 'java_shipments',
                   'categories', 'percentage_users_completed', ]
+
+
+class ProblemSerializerShort(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Problems
+        fields = ['id_problem', 'title', ]

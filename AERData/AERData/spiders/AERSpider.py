@@ -108,18 +108,23 @@ class Users(scrapy.Spider):
             # If the user exists, look the info, else go to next
             if not response.xpath("//div[@class='alert alert-danger']"):
                 user = User()
+                count_row_accepteds = 0
+                count_row_attempteds = 0
+                user['array_problems_accepted'] = {}
+                user['array_problems_attempted'] = {}
                 user['id_user'] = Users.id
                 user['nick'] = extract_xpath("//div[@class='col-sm-8']//p")[0].get()
                 user['name'] = extract_xpath("//div[@class='col-sm-8']//p")[1].get()
                 user['country'] = extract_xpath("//div[@class='col-sm-8']//p")[2].get().strip()
                 # Try to get the institution and logo, if don't have any use the default text
                 try:
-                    user['institution'] = extract_xpath("//div[@class='col-sm-8']//a")[0].get()
+                    user['institution'] = \
+                        extract_xpath("/html/body/div[1]/div/div[2]/div/div[2]/div/div[1]/div[4]/div/p/a")[0].get()
                     relative_img_urls = response.xpath("//div[@class='col-sm-8']//a//img/@src")[0].get(),
-                    user['image_urls'] = self.url_join(relative_img_urls, response)
+                    # user['image_urls'] = self.url_join(relative_img_urls, response)
                 except:
                     user['institution'] = extract_xpath("//div[@class='col-sm-8']//p")[3].get().strip()
-                    user['image_urls'] = ""
+                user['image_urls'] = ""
                 # If the user have tried to send any solution, look the stats, else set stats to 0
                 if not response.xpath("//div[@class='alert alert-info']"):
                     user['shipments'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
@@ -135,16 +140,36 @@ class Users(scrapy.Spider):
                     user['total_accepteds'] = 0
                     user['intents'] = 0
                     user['accepteds'] = 0
+
+                if response.xpath("//tbody[@class='table-hover']"):
+                    problems_resolved = response.xpath("//tbody[@class='table-hover']/tr")
+                    for problem in problems_resolved:
+                        user['array_problems_accepted'][count_row_accepteds] = problem.xpath("./td/a//text()").get()
+                        count_row_accepteds += 1
+
+                if response.xpath("//tbody[@class='table-hover']"):
+                    problems_not_resolved = response.xpath("//tbody[@class='table-hover']/tr[@class='danger']")
+                    for problem in problems_not_resolved:
+                        user['array_problems_attempted'][count_row_attempteds] = problem.xpath("./td/a//text()").get()
+                        count_row_attempteds += 1
+                else:
+                    pass
                 yield user
                 # Reset the failed users
                 Users.users_failed = 0
             else:
+                query = "INSERT INTO blacklist_users(number_user) " \
+                        "VALUES (%s) " \
+                        "ON CONFLICT(number_user) DO NOTHING"
+
+                self.cur.execute(query, [Users.id])
+                self.connection.commit()
                 Users.users_failed += 1
         except Exception as e:
             print(e)
 
         Users.id += 1
-        if Users.users_failed < 20:
+        if Users.users_failed < 2500:
             yield response.follow(url='https://www.aceptaelreto.com/user/profile.php?id={}'.format(Users.id),
                                   callback=self.parse_user)
 
