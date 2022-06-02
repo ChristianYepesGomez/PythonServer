@@ -5,12 +5,12 @@ from rest_framework import serializers
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    # problems_attempted = ProblemSerializerShort(read_only=True, many=True)
+    problems_attempted = ProblemSerializerShort(read_only=True, many=True)
 
     class Meta:
         model = Users
         fields = ['id_user', 'nick', 'name', 'country', 'institution', 'logo_src', 'shipments', 'total_accepteds',
-                  'intents', 'accepteds', ]
+                  'intents', 'accepteds', 'problems_attempted']
 
 
 class BlackListUsersSerializer(serializers.HyperlinkedModelSerializer):
