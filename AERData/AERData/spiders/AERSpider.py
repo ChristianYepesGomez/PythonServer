@@ -83,6 +83,10 @@ class Users(scrapy.Spider):
     def __init__(self):
         self.connection = psycopg2.connect(user=user, host=hostname, password=password, database=name, port=port)
         self.cur = self.connection.cursor()
+        query = "TRUNCATE TABLE institutions, institutions_users"
+
+        self.cur.execute(query)
+        self.connection.commit()
 
     def insert(self, query, params):
         try:
@@ -117,18 +121,21 @@ class Users(scrapy.Spider):
                 user['nick'] = extract_xpath("//div[@class='col-sm-8']//p")[0].get()
                 user['name'] = extract_xpath("//div[@class='col-sm-8']//p")[1].get()
                 user['country'] = extract_xpath("//div[@class='col-sm-8']//p")[2].get().strip()
+                user['image_urls'] = response.xpath("/html/body/div[1]/div/div[2]/div/div[2]/div/div[2]/p/img/@src")[
+                    0].get()
                 # Try to get the institution and logo, if don't have any use the default text
                 try:
                     user['institution'] = \
                         extract_xpath("/html/body/div[1]/div/div[2]/div/div[2]/div/div[1]/div[4]/div/p/a")[0].get()
                     institution['name'] = \
                         extract_xpath("/html/body/div[1]/div/div[2]/div/div[2]/div/div[1]/div[4]/div/p/a")[0].get()
-                    relative_img_urls = response.xpath("//div[@class='col-sm-8']//a//img/@src")[0].get(),
-                    # user['image_urls'] = self.url_join(relative_img_urls, response)
+                    institution['logo_src'] = \
+                        response.xpath("/html/body/div[1]/div/div[2]/div/div[2]/div/div[1]/div[4]/div/div/a/img/@src")[
+                            0].get()
                 except:
                     user['institution'] = extract_xpath("//div[@class='col-sm-8']//p")[3].get().strip()
                     institution['name'] = extract_xpath("//div[@class='col-sm-8']//p")[3].get().strip()
-                user['image_urls'] = ""
+                    institution['logo_src'] = ""
                 # If the user have tried to send any solution, look the stats, else set stats to 0
                 if not response.xpath("//div[@class='alert alert-info']"):
                     user['shipments'] = extract_xpath("//div[@class='panel-body text-box text-center']")[
@@ -146,10 +153,9 @@ class Users(scrapy.Spider):
                     user['accepteds'] = 0
                 institution['problems_solved'] = user['accepteds']
                 institution['shipments'] = user['shipments']
-                institution['logo_src'] = ""
 
                 if response.xpath("//tbody[@class='table-hover']"):
-                    problems_resolved = response.xpath("//tbody[@class='table-hover']/tr")
+                    problems_resolved = response.xpath("//tbody[@class='table-hover']/tr[not(@class)]")
                     for problem in problems_resolved:
                         user['array_problems_accepted'][count_row_accepteds] = problem.xpath("./td/a//text()").get()
                         count_row_accepteds += 1
@@ -163,7 +169,7 @@ class Users(scrapy.Spider):
                     pass
                 yield institution
                 yield user
-                
+
                 # Reset the failed users
                 Users.users_failed = 0
             else:

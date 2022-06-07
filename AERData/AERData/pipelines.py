@@ -101,16 +101,16 @@ class AerdataPipeline(object):
 
                 contador = 0
                 for problema, valor in item['array_problems_accepted'].items():
-                    query = "INSERT INTO users_problems_attempted(resolved,id_problem,id_user) " \
-                            "VALUES (%s,%s,%s) " \
-                            "ON CONFLICT (id_user, id_problem) DO UPDATE SET resolved = %s, id_problem = %s, id_user = %s"
+                    query = "INSERT INTO users_problems_solved(users_id,problems_id) " \
+                            "VALUES (%s,%s) " \
+                            "ON CONFLICT (users_id, problems_id) DO UPDATE SET users_id = %s,problems_id = %s"
 
                     splited_valor = valor.split(" ")
 
                     id_problem_splited = splited_valor[0]
 
                     values = (
-                        True, id_problem_splited, item['id_user'], True, id_problem_splited, item['id_user']
+                        item['id_user'], id_problem_splited, item['id_user'], id_problem_splited,
                     )
 
                     contador += 1
@@ -118,16 +118,16 @@ class AerdataPipeline(object):
                     spider.cur.execute(query, values)
 
                 for problema, valor in item['array_problems_attempted'].items():
-                    query = "INSERT INTO users_problems_attempted(resolved,id_problem,id_user) " \
-                            "VALUES (%s,%s,%s) " \
-                            "ON CONFLICT (id_user, id_problem) DO UPDATE SET resolved = %s, id_problem = %s, id_user = %s"
+                    query = "INSERT INTO users_problems_attempted(users_id,problems_id) " \
+                            "VALUES (%s,%s) " \
+                            "ON CONFLICT (users_id, problems_id) DO UPDATE SET users_id = %s,problems_id = %s"
 
                     splited_valor = valor.split(" ")
 
                     id_problem_splited = splited_valor[0]
 
                     values = (
-                        False, id_problem_splited, item['id_user'], False, id_problem_splited, item['id_user']
+                        item['id_user'], id_problem_splited, item['id_user'], id_problem_splited,
                     )
 
                     contador += 1
@@ -179,7 +179,7 @@ class AerdataPipeline(object):
                     problems_solved += row[0]
                     shipments = +row[1]
 
-                # Insert problems on database or updated if exist
+                # Insert institutions on database or updated if exist
                 query = "INSERT INTO institutions(name,problems_solved,shipments,logo_src) " \
                         "VALUES (%s,%s,%s,%s)" \
                         "ON CONFLICT (name) DO UPDATE SET name = %s,problems_solved = %s,shipments = %s," \

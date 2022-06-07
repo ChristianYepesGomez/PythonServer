@@ -21,6 +21,7 @@ from .views import *
 
 router = routers.DefaultRouter()
 router.register(r'base', views.UserViewSet, basename='users')
+router.register(r'no_problems', views.UserViewSetWithoutProblems, basename='users_no_problems')
 
 urlpatterns = [
     path('', include(router.urls)),
